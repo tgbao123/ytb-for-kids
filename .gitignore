@@ -3,6 +3,9 @@
 # python venv
 /venv
 
+# videos (too large for git)
+/public/videos
+
 # playwright
 /test-results
 /playwright-report

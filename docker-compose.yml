@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  youtube-kids:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: youtube-kids-app
+    ports:
+      - "8341:3000"
+    volumes:
+      # Mount thư mục chứa video trên Host vào trong Container
+      - ./public/videos:/app/public/videos
+      # Mount file Database SQLite để không bị mất data khi xoá Container
+      - ./prisma/dev.db:/app/prisma/dev.db
+    restart: always

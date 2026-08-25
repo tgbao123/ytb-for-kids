@@ -10,6 +10,7 @@ interface Video {
   thumbnail: string;
   views: string;
   authorName: string;
+  createdAt: string;
 }
 
 export default function AdminPage() {
@@ -194,6 +195,7 @@ export default function AdminPage() {
                 <th className="p-4 font-medium">Video</th>
                 <th className="p-4 font-medium hidden sm:table-cell">Kênh</th>
                 <th className="p-4 font-medium hidden sm:table-cell">Lượt xem</th>
+                <th className="p-4 font-medium hidden md:table-cell">Ngày tạo</th>
                 <th className="p-4 font-medium">Link HLS</th>
                 <th className="p-4 font-medium text-right">Thao tác</th>
               </tr>
@@ -201,11 +203,11 @@ export default function AdminPage() {
             <tbody className="divide-y divide-gray-800">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500">Đang tải...</td>
+                  <td colSpan={6} className="p-8 text-center text-gray-500">Đang tải...</td>
                 </tr>
               ) : videos.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="p-8 text-center text-gray-500">Chưa có video nào. Bấm Quét File MP4 Mới.</td>
+                  <td colSpan={6} className="p-8 text-center text-gray-500">Chưa có video nào. Bấm Quét File MP4 Mới.</td>
                 </tr>
               ) : (
                 videos.map((video) => (
@@ -217,6 +219,12 @@ export default function AdminPage() {
                     </td>
                     <td className="p-4 hidden sm:table-cell text-sm text-gray-400">{video.authorName}</td>
                     <td className="p-4 hidden sm:table-cell text-sm text-gray-400">{video.views}</td>
+                    <td className="p-4 hidden md:table-cell text-sm text-gray-400">
+                      {new Date(video.createdAt).toLocaleDateString('vi-VN', {
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit'
+                      })}
+                    </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
                         {video.videoUrl.includes('.m3u8') ? (

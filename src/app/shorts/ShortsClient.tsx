@@ -225,7 +225,7 @@ export default function ShortsClient({ initialShorts }: { initialShorts: Short[]
                   e.stopPropagation(); // Ngăn chặn sự kiện click lan ra ngoài làm pause video
                   setIsMuted(!isMuted);
                 }}
-                className="absolute top-4 right-4 sm:right-12 z-50 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white pointer-events-auto transition"
+                className="absolute top-20 right-4 sm:right-12 z-50 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white pointer-events-auto transition"
               >
                 {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
               </button>

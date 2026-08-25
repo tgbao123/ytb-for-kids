@@ -214,7 +214,6 @@ export default function ShortsClient({ initialShorts }: { initialShorts: Short[]
                   loop
                   muted={isMuted}
                   preload={getPreload()}
-                  poster={short.thumbnail}
                   className="short-video-el w-full h-full object-cover"
                   playsInline
                 />

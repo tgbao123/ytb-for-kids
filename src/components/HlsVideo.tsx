@@ -20,7 +20,13 @@ export default function HlsVideo({ src, ...props }: HlsVideoProps) {
     }
 
     if (src) {
-      if (Hls.isSupported()) {
+      // Ưu tiên Native HLS trên Safari (macOS và iOS) vì Safari hỗ trợ HLS siêu mượt và ít bị lỗi Security Policy
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+      if (isSafari && video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = src;
+        
+      } else if (Hls.isSupported()) {
         const hls = new Hls({
           // Tối ưu hóa bộ đệm cho Shorts (nhanh & mượt)
           maxBufferLength: 10,

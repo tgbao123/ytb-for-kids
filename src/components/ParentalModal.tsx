@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useSettings } from '@/store/useSettings';
-import { X } from 'lucide-react';
+import { X, Settings } from 'lucide-react';
+import Link from 'next/link';
 
 interface ParentalModalProps {
   isOpen: boolean;
@@ -82,7 +83,7 @@ export default function ParentalModal({ isOpen, onClose }: ParentalModalProps) {
               </button>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl mb-6">
               <div>
                 <h3 className="font-bold text-lg text-gray-800">YouTube Shorts</h3>
                 <p className="text-sm text-gray-500">Hiển thị tab video ngắn</p>
@@ -95,6 +96,16 @@ export default function ParentalModal({ isOpen, onClose }: ParentalModalProps) {
               </button>
             </div>
 
+            <div className="pt-4 border-t border-gray-200">
+              <Link 
+                href="/admin"
+                onClick={handleClose}
+                className="flex items-center justify-center gap-2 w-full bg-gray-800 text-white text-lg font-bold py-4 rounded-xl hover:bg-gray-900 transition"
+              >
+                <Settings size={20} />
+                Vào trang Quản Trị Video
+              </Link>
+            </div>
           </div>
         )}
       </div>

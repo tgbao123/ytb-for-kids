@@ -18,6 +18,9 @@ export default function AdminPage() {
   const [statusMsg, setStatusMsg] = useState({ text: '', type: '' });
   const [isScanning, setIsScanning] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchVideos = async () => {
     setLoading(true);
@@ -36,6 +39,42 @@ export default function AdminPage() {
   useEffect(() => {
     fetchVideos();
   }, []);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.includes('mp4')) {
+      alert('Vui lòng chọn file định dạng MP4');
+      return;
+    }
+
+    setIsUploading(true);
+    setStatusMsg({ text: `Đang upload và convert ${file.name} sang HLS (Vui lòng không đóng trang)...`, type: 'info' });
+
+    const formData = new FormData();
+    formData.append('video', file);
+
+    try {
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setStatusMsg({ text: data.message, type: 'success' });
+        fetchVideos(); // Reload list
+      } else {
+        setStatusMsg({ text: 'Lỗi upload: ' + data.error, type: 'error' });
+      }
+    } catch (err) {
+      setStatusMsg({ text: 'Lỗi kết nối khi upload', type: 'error' });
+    }
+
+    setIsUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const handleScan = async () => {
     setIsScanning(true);
@@ -95,23 +134,39 @@ export default function AdminPage() {
           <h1 className="text-3xl font-bold mb-2">Trang Quản Trị Video</h1>
           <p className="text-gray-400">Quản lý và Import video vào hệ thống</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
+          <input 
+            type="file" 
+            accept="video/mp4" 
+            ref={fileInputRef} 
+            onChange={handleFileUpload} 
+            className="hidden" 
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isScanning || isConverting || isUploading}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition disabled:opacity-50"
+          >
+            <PlayCircle className={`w-5 h-5 ${isUploading ? 'animate-pulse' : ''}`} />
+            {isUploading ? 'Đang Upload & HLS...' : 'Upload Video (MP4)'}
+          </button>
+
           <button 
             onClick={handleScan}
-            disabled={isScanning || isConverting}
+            disabled={isScanning || isConverting || isUploading}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition disabled:opacity-50"
           >
             <RefreshCw className={`w-5 h-5 ${isScanning ? 'animate-spin' : ''}`} />
-            Quét File MP4 Mới
+            Quét File Cũ
           </button>
           
           <button 
             onClick={handleConvert}
-            disabled={isScanning || isConverting}
+            disabled={isScanning || isConverting || isUploading}
             className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition disabled:opacity-50"
           >
             <Wand2 className={`w-5 h-5 ${isConverting ? 'animate-pulse' : ''}`} />
-            Xử Lý HLS
+            Xử Lý HLS Toàn Bộ
           </button>
         </div>
       </div>

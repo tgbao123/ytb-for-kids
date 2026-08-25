@@ -26,18 +26,23 @@ for file in "$VIDEO_DIR"/*.mp4; do
 
   echo "⏳ Đang xử lý: $name..."
 
-  # Chạy FFmpeg thông qua Docker để convert MP4 -> HLS (băm thành mảnh 4 giây)
-  # Dùng codec copy (-c:v copy -c:a copy) giúp tốc độ xử lý tính bằng giây, không làm giảm chất lượng.
-  docker run --rm \
-    -v "$(pwd)/public/videos:/videos" \
-    linuxserver/ffmpeg \
-    -i "/videos/$filename" \
-    -c:v copy -c:a copy \
-    -start_number 0 \
-    -hls_time 4 \
-    -hls_list_size 0 \
-    -f hls \
-    "/videos/hls/$name/index.m3u8"
+  # Kiểm tra xem có lệnh ffmpeg trực tiếp không
+  if command -v ffmpeg &> /dev/null; then
+    # Chạy ffmpeg trực tiếp (khi chạy trong docker container của NextJS)
+    ffmpeg -i "$file" -c:v copy -c:a copy -start_number 0 -hls_time 4 -hls_list_size 0 -f hls "$HLS_DIR/$name/index.m3u8"
+  else
+    # Chạy qua Docker (khi chạy ở máy host local)
+    docker run --rm \
+      -v "$(pwd)/public/videos:/videos" \
+      linuxserver/ffmpeg \
+      -i "/videos/$filename" \
+      -c:v copy -c:a copy \
+      -start_number 0 \
+      -hls_time 4 \
+      -hls_list_size 0 \
+      -f hls \
+      "/videos/hls/$name/index.m3u8"
+  fi
 done
 
 echo "✅ Hoàn thành convert tất cả video sang HLS!"

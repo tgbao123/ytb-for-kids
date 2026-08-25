@@ -1,0 +1,192 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { RefreshCw, Wand2, Trash2, CheckCircle, AlertCircle, PlayCircle } from 'lucide-react';
+
+interface Video {
+  id: string;
+  title: string;
+  videoUrl: string;
+  thumbnail: string;
+  views: string;
+  authorName: string;
+}
+
+export default function AdminPage() {
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusMsg, setStatusMsg] = useState({ text: '', type: '' });
+  const [isScanning, setIsScanning] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
+
+  const fetchVideos = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/videos');
+      const data = await res.json();
+      if (data.success) {
+        setVideos(data.videos);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchVideos();
+  }, []);
+
+  const handleScan = async () => {
+    setIsScanning(true);
+    setStatusMsg({ text: 'Đang quét thư mục /public/videos...', type: 'info' });
+    try {
+      const res = await fetch('/api/admin/scan', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setStatusMsg({ text: data.message, type: 'success' });
+        fetchVideos();
+      } else {
+        setStatusMsg({ text: 'Lỗi: ' + data.error, type: 'error' });
+      }
+    } catch (e) {
+      setStatusMsg({ text: 'Lỗi kết nối', type: 'error' });
+    }
+    setIsScanning(false);
+  };
+
+  const handleConvert = async () => {
+    setIsConverting(true);
+    setStatusMsg({ text: 'Đang xử lý HLS (Quá trình này có thể mất vài phút tuỳ số lượng video)...', type: 'info' });
+    try {
+      const res = await fetch('/api/admin/convert', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setStatusMsg({ text: 'Đã hoàn tất xử lý HLS!', type: 'success' });
+      } else {
+        setStatusMsg({ text: 'Lỗi: ' + data.error, type: 'error' });
+      }
+    } catch (e) {
+      setStatusMsg({ text: 'Lỗi kết nối hoặc timeout do chạy quá lâu.', type: 'error' });
+    }
+    setIsConverting(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xoá video này khỏi DB? (File gốc vẫn giữ lại)')) return;
+    
+    try {
+      const res = await fetch(`/api/admin/videos?id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setVideos(videos.filter(v => v.id !== id));
+      } else {
+        alert('Lỗi khi xoá: ' + data.error);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  return (
+    <div className="p-4 sm:p-8 max-w-6xl mx-auto text-white">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Trang Quản Trị Video</h1>
+          <p className="text-gray-400">Quản lý và Import video vào hệ thống</p>
+        </div>
+        <div className="flex gap-3">
+          <button 
+            onClick={handleScan}
+            disabled={isScanning || isConverting}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition disabled:opacity-50"
+          >
+            <RefreshCw className={`w-5 h-5 ${isScanning ? 'animate-spin' : ''}`} />
+            Quét File MP4 Mới
+          </button>
+          
+          <button 
+            onClick={handleConvert}
+            disabled={isScanning || isConverting}
+            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition disabled:opacity-50"
+          >
+            <Wand2 className={`w-5 h-5 ${isConverting ? 'animate-pulse' : ''}`} />
+            Xử Lý HLS
+          </button>
+        </div>
+      </div>
+
+      {statusMsg.text && (
+        <div className={`p-4 rounded-lg mb-8 flex items-center gap-3 ${
+          statusMsg.type === 'error' ? 'bg-red-900/50 text-red-200 border border-red-800' : 
+          statusMsg.type === 'success' ? 'bg-green-900/50 text-green-200 border border-green-800' : 
+          'bg-blue-900/50 text-blue-200 border border-blue-800'
+        }`}>
+          {statusMsg.type === 'error' ? <AlertCircle className="w-5 h-5" /> : <CheckCircle className="w-5 h-5" />}
+          {statusMsg.text}
+        </div>
+      )}
+
+      <div className="bg-[#1a1a1a] rounded-xl border border-gray-800 overflow-hidden">
+        <div className="p-4 border-b border-gray-800 flex justify-between items-center">
+          <h2 className="font-semibold text-lg">Danh sách video trong Database ({videos.length})</h2>
+        </div>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-[#222] text-gray-400 text-sm">
+              <tr>
+                <th className="p-4 font-medium">Video</th>
+                <th className="p-4 font-medium hidden sm:table-cell">Kênh</th>
+                <th className="p-4 font-medium hidden sm:table-cell">Lượt xem</th>
+                <th className="p-4 font-medium">Link HLS</th>
+                <th className="p-4 font-medium text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-800">
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-gray-500">Đang tải...</td>
+                </tr>
+              ) : videos.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-gray-500">Chưa có video nào. Bấm Quét File MP4 Mới.</td>
+                </tr>
+              ) : (
+                videos.map((video) => (
+                  <tr key={video.id} className="hover:bg-[#222] transition">
+                    <td className="p-4">
+                      <div className="font-medium text-sm sm:text-base truncate max-w-[200px] sm:max-w-[300px]">
+                        {video.title}
+                      </div>
+                    </td>
+                    <td className="p-4 hidden sm:table-cell text-sm text-gray-400">{video.authorName}</td>
+                    <td className="p-4 hidden sm:table-cell text-sm text-gray-400">{video.views}</td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        {video.videoUrl.includes('.m3u8') ? (
+                          <span className="bg-green-900 text-green-300 text-xs px-2 py-1 rounded">HLS Ready</span>
+                        ) : (
+                          <span className="bg-yellow-900 text-yellow-300 text-xs px-2 py-1 rounded">MP4 Raw</span>
+                        )}
+                        <span className="text-xs text-gray-500 truncate max-w-[150px]">{video.videoUrl}</span>
+                      </div>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button 
+                        onClick={() => handleDelete(video.id)}
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}

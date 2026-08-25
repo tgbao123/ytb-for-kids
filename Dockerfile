@@ -29,7 +29,7 @@ RUN npm run build
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl ffmpeg bash
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1

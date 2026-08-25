@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { RefreshCw, Wand2, Trash2, CheckCircle, AlertCircle, PlayCircle } from 'lucide-react';
 
 interface Video {

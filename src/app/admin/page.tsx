@@ -17,8 +17,6 @@ export default function AdminPage() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusMsg, setStatusMsg] = useState({ text: '', type: '' });
-  const [isScanning, setIsScanning] = useState(false);
-  const [isConverting, setIsConverting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,41 +75,6 @@ export default function AdminPage() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleScan = async () => {
-    setIsScanning(true);
-    setStatusMsg({ text: 'Đang quét thư mục /public/videos...', type: 'info' });
-    try {
-      const res = await fetch('/api/admin/scan', { method: 'POST' });
-      const data = await res.json();
-      if (data.success) {
-        setStatusMsg({ text: data.message, type: 'success' });
-        fetchVideos();
-      } else {
-        setStatusMsg({ text: 'Lỗi: ' + data.error, type: 'error' });
-      }
-    } catch (e) {
-      setStatusMsg({ text: 'Lỗi kết nối', type: 'error' });
-    }
-    setIsScanning(false);
-  };
-
-  const handleConvert = async () => {
-    setIsConverting(true);
-    setStatusMsg({ text: 'Đang xử lý HLS (Quá trình này có thể mất vài phút tuỳ số lượng video)...', type: 'info' });
-    try {
-      const res = await fetch('/api/admin/convert', { method: 'POST' });
-      const data = await res.json();
-      if (data.success) {
-        setStatusMsg({ text: 'Đã hoàn tất xử lý HLS!', type: 'success' });
-      } else {
-        setStatusMsg({ text: 'Lỗi: ' + data.error, type: 'error' });
-      }
-    } catch (e) {
-      setStatusMsg({ text: 'Lỗi kết nối hoặc timeout do chạy quá lâu.', type: 'error' });
-    }
-    setIsConverting(false);
-  };
-
   const handleDelete = async (id: string) => {
     if (!confirm('Bạn có chắc chắn muốn xoá video này khỏi DB? (File gốc vẫn giữ lại)')) return;
     
@@ -145,29 +108,11 @@ export default function AdminPage() {
           />
           <button 
             onClick={() => fileInputRef.current?.click()}
-            disabled={isScanning || isConverting || isUploading}
+            disabled={isUploading}
             className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-medium transition disabled:opacity-50"
           >
             <PlayCircle className={`w-5 h-5 ${isUploading ? 'animate-pulse' : ''}`} />
             {isUploading ? 'Đang Upload & HLS...' : 'Upload Video (MP4)'}
-          </button>
-
-          <button 
-            onClick={handleScan}
-            disabled={isScanning || isConverting || isUploading}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition disabled:opacity-50"
-          >
-            <RefreshCw className={`w-5 h-5 ${isScanning ? 'animate-spin' : ''}`} />
-            Quét File Cũ
-          </button>
-          
-          <button 
-            onClick={handleConvert}
-            disabled={isScanning || isConverting || isUploading}
-            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-medium transition disabled:opacity-50"
-          >
-            <Wand2 className={`w-5 h-5 ${isConverting ? 'animate-pulse' : ''}`} />
-            Xử Lý HLS Toàn Bộ
           </button>
         </div>
       </div>

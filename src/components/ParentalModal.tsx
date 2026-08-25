@@ -53,7 +53,7 @@ export default function ParentalModal({ isOpen, onClose }: ParentalModalProps) {
               type="number"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
-              className="text-center text-2xl font-bold border-4 border-gray-200 rounded-2xl w-32 py-3 mb-2 focus:border-blue-500 outline-none"
+              className="text-center text-2xl font-bold text-gray-800 border-4 border-gray-400 rounded-2xl w-32 py-3 mb-2 focus:border-blue-500 outline-none"
               placeholder="Đáp án"
             />
             {error && <p className="text-red-500 font-bold mb-4">Sai rồi, thử lại nhé!</p>}

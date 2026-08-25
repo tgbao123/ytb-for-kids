@@ -1,6 +1,6 @@
 'use client';
 
-import { ThumbsUp, ThumbsDown, MessageSquare, Share2, Repeat, ArrowDown, ArrowUp, Volume2, VolumeX } from 'lucide-react';
+import { Heart, MessageSquare, Share2, MoreHorizontal, ArrowUp, ArrowDown, Volume2, VolumeX, ThumbsUp, ThumbsDown, Repeat, Play, Pause } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 interface Short {
@@ -40,8 +40,13 @@ export default function ShortsClient({ initialShorts }: { initialShorts: Short[]
   });
   const [activeId, setActiveId] = useState<string | null>(feedList[50]?.uniqueId || null);
   const [isMuted, setIsMuted] = useState(true); // Mặc định tắt tiếng để autoplay luôn hoạt động trên mobile
-  const hasInteractedRef = useRef(false); // Theo dõi user đã tap chưa
+  const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const hasInteractedRef = useRef(false);
+
+  useEffect(() => {
+    setIsPaused(false);
+  }, [activeId]);
 
   const toggleLike = (id: string) => {
     setLiked(prev => ({ ...prev, [id]: !prev[id] }));
@@ -200,8 +205,10 @@ export default function ShortsClient({ initialShorts }: { initialShorts: Short[]
                   if (videoEl.paused) {
                     videoEl.muted = false; // Bật tiếng khi user chủ động tap
                     videoEl.play().catch(console.error);
+                    setIsPaused(false);
                   } else {
                     videoEl.pause();
+                    setIsPaused(true);
                   }
                 }
               }}
@@ -219,16 +226,40 @@ export default function ShortsClient({ initialShorts }: { initialShorts: Short[]
                 />
               </div>
               
-              {/* Mute Toggle Button */}
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation(); // Ngăn chặn sự kiện click lan ra ngoài làm pause video
-                  setIsMuted(!isMuted);
-                }}
-                className="absolute top-20 right-4 sm:right-12 z-50 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white pointer-events-auto transition"
-              >
-                {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-              </button>
+              {/* Top Left Controls: Play/Pause & Mute */}
+              <div className="absolute top-4 left-4 z-50 flex items-center gap-3 pointer-events-auto">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const container = e.currentTarget.closest('.short-container');
+                    if (container) {
+                      const videoEl = container.querySelector('video');
+                      if (videoEl) {
+                        if (videoEl.paused) {
+                          videoEl.play().catch(console.error);
+                          setIsPaused(false);
+                        } else {
+                          videoEl.pause();
+                          setIsPaused(true);
+                        }
+                      }
+                    }
+                  }}
+                  className="w-11 h-11 bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center text-white transition-colors"
+                >
+                  {isPaused ? <Play className="w-6 h-6 ml-1" fill="white" /> : <Pause className="w-6 h-6" fill="white" />}
+                </button>
+
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsMuted(!isMuted);
+                  }}
+                  className="w-11 h-11 bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center text-white transition-colors"
+                >
+                  {isMuted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                </button>
+              </div>
 
               <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
 

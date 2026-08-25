@@ -14,6 +14,8 @@ interface Short {
   authorAvatar: string;
 }
 
+import HlsVideo from '@/components/HlsVideo';
+
 export default function ShortsClient({ initialShorts }: { initialShorts: Short[] }) {
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [disliked, setDisliked] = useState<Record<string, boolean>>({});
@@ -163,7 +165,18 @@ export default function ShortsClient({ initialShorts }: { initialShorts: Short[]
       className="absolute inset-0 w-full bg-[#0f0f0f] overflow-y-scroll snap-y snap-mandatory no-scrollbar"
     >
       {feedList.map((short, index) => {
-        const isNearActive = Math.abs(index - safeActiveIndex) <= 5;
+        // Tối ưu 1: Giảm số lượng DOM chủ động tải xuống ±2
+        const distance = Math.abs(index - safeActiveIndex);
+        const isNearActive = distance <= 2;
+        const isActive = activeId === short.uniqueId;
+        
+        // Tối ưu 2: Quản lý preload thông minh
+        const getPreload = () => {
+          if (isActive) return "auto";
+          if (distance === 1) return "metadata";
+          return "none"; 
+        };
+
         return (
         <div 
           key={short.uniqueId} 
@@ -196,11 +209,12 @@ export default function ShortsClient({ initialShorts }: { initialShorts: Short[]
               
               {/* Video LUÔN tồn tại trong DOM — chỉ bật/tắt src, không bao giờ xoá thẻ */}
               <div className="absolute inset-0 pointer-events-none bg-[#0f0f0f]">
-                <video
+                <HlsVideo
                   src={isNearActive ? short.videoUrl : undefined}
                   loop
                   muted={isMuted}
-                  preload={activeId === short.uniqueId ? "auto" : "metadata"}
+                  preload={getPreload()}
+                  poster={short.thumbnail}
                   className="short-video-el w-full h-full object-cover"
                   playsInline
                 />

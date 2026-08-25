@@ -11,6 +11,6 @@ services:
     volumes:
       # Mount thư mục chứa video trên Host vào trong Container
       - ./public/videos:/app/public/videos
-      # Mount file Database SQLite để không bị mất data khi xoá Container
-      - ./prisma/dev.db:/app/prisma/dev.db
+      # Mount thư mục Database SQLite để hỗ trợ ghi file temp (-wal, -shm) tránh lỗi readonly
+      - ./prisma:/app/prisma
     restart: always

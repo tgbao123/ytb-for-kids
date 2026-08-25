@@ -187,9 +187,9 @@ export default function AdminPage() {
           <h2 className="font-semibold text-lg">Danh sách video trong Database ({videos.length})</h2>
         </div>
         
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-[#222] text-gray-400 text-sm">
+        <div className="overflow-x-auto overflow-y-auto max-h-[65vh]">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-[#222] text-gray-400 text-sm sticky top-0 z-10 shadow-md">
               <tr>
                 <th className="p-4 font-medium">Video</th>
                 <th className="p-4 font-medium hidden sm:table-cell">Kênh</th>

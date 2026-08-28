@@ -14,9 +14,11 @@ interface Short {
   authorAvatar: string;
 }
 
+import { useSettings } from '@/store/useSettings';
 import HlsVideo from '@/components/HlsVideo';
 
-export default function ShortsClient({ initialShorts, prioritizeNewest = false }: { initialShorts: Short[], prioritizeNewest?: boolean }) {
+export default function ShortsClient({ initialShorts }: { initialShorts: Short[] }) {
+  const { prioritizeNewest } = useSettings();
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [disliked, setDisliked] = useState<Record<string, boolean>>({});
   

@@ -15,7 +15,7 @@ export default function ParentalModal({ isOpen, onClose }: ParentalModalProps) {
   const [answer, setAnswer] = useState('');
   const [error, setError] = useState(false);
   
-  const { enableSearch, enableShorts, toggleSearch, toggleShorts } = useSettings();
+  const { enableSearch, enableShorts, prioritizeNewest, toggleSearch, toggleShorts, togglePrioritizeNewest } = useSettings();
 
   if (!isOpen) return null;
 
@@ -83,7 +83,7 @@ export default function ParentalModal({ isOpen, onClose }: ParentalModalProps) {
               </button>
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl mb-6">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl mb-4">
               <div>
                 <h3 className="font-bold text-lg text-gray-800">YouTube Shorts</h3>
                 <p className="text-sm text-gray-500">Hiển thị tab video ngắn</p>
@@ -93,6 +93,19 @@ export default function ParentalModal({ isOpen, onClose }: ParentalModalProps) {
                 className={`w-14 h-8 rounded-full flex items-center p-1 transition-colors ${enableShorts ? 'bg-green-500' : 'bg-gray-300'}`}
               >
                 <div className={`w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform ${enableShorts ? 'translate-x-6' : 'translate-x-0'}`} />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl mb-6">
+              <div>
+                <h3 className="font-bold text-lg text-gray-800">Ưu tiên video mới nhất</h3>
+                <p className="text-sm text-gray-500">Hiển thị các video mới nạp lên đầu</p>
+              </div>
+              <button 
+                onClick={togglePrioritizeNewest}
+                className={`w-14 h-8 rounded-full flex items-center p-1 transition-colors ${prioritizeNewest ? 'bg-green-500' : 'bg-gray-300'}`}
+              >
+                <div className={`w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform ${prioritizeNewest ? 'translate-x-6' : 'translate-x-0'}`} />
               </button>
             </div>
 

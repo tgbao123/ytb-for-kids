@@ -6,10 +6,10 @@ import ShortsClient from './ShortsClient';
 const prisma = new PrismaClient();
 
 export default async function ShortsPage() {
-  const videos = await prisma.video.findMany();
+  // Lấy video mới nhất lên đầu
+  const videos = await prisma.video.findMany({
+    orderBy: { createdAt: 'desc' }
+  });
   
-  // Shuffle the videos randomly
-  const shuffledVideos = [...videos].sort(() => Math.random() - 0.5);
-  
-  return <ShortsClient initialShorts={shuffledVideos} />;
+  return <ShortsClient initialShorts={videos} />;
 }

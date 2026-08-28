@@ -32,11 +32,19 @@ export default function ShortsClient({ initialShorts }: { initialShorts: Short[]
   };
 
   const [feedList, setFeedList] = useState<(Short & { uniqueId: string })[]>(() => {
-    // Tạo sẵn 101 video từ túi ngay từ đầu
-    return Array.from({ length: 101 }).map(() => {
-      const s = getNextFromBag();
-      return { ...s, uniqueId: `rand-${Math.random()}` };
+    // Tạo sẵn 101 slot
+    const list = Array.from({ length: 101 }).map(() => {
+      return { ...getNextFromBag(), uniqueId: `rand-${Math.random()}` };
     });
+    
+    // Ép 5 video MỚI NHẤT (từ initialShorts đã sort DESC) vào đúng vị trí bắt đầu (index 50 trở đi)
+    // Để user vừa vào là thấy ngay hàng nóng!
+    const numToInject = Math.min(5, initialShorts.length);
+    for (let i = 0; i < numToInject; i++) {
+      list[50 + i] = { ...initialShorts[i], uniqueId: `newest-${i}-${Math.random()}` };
+    }
+    
+    return list;
   });
   const [activeId, setActiveId] = useState<string | null>(feedList[50]?.uniqueId || null);
   const [isMuted, setIsMuted] = useState(true); // Mặc định tắt tiếng để autoplay luôn hoạt động trên mobile

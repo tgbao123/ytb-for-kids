@@ -17,9 +17,11 @@ export async function POST(req: Request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    // Thay thế khoảng trắng bằng dấu gạch dưới để ffmpeg dễ xử lý
-    const filename = file.name.replace(/\s+/g, '_');
-    const nameWithoutExt = filename.replace(/\.mp4$/i, '');
+    // Làm sạch tên file tuyệt đối (chỉ giữ lại chữ, số và dấu _)
+    const originalExt = path.extname(file.name);
+    let nameWithoutExt = path.basename(file.name, originalExt);
+    nameWithoutExt = nameWithoutExt.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_'); // Xoá ký tự đặc biệt, gộp nhiều _ thành 1
+    const filename = `${nameWithoutExt}${originalExt}`;
     
     // Lưu file vào public/videos
     const videoDir = path.join(process.cwd(), 'public', 'videos');
@@ -30,10 +32,12 @@ export async function POST(req: Request) {
 
     const hlsUrl = `/videos/hls/${nameWithoutExt}/index.m3u8`;
 
+    let videoRecordId = null;
+
     // Lưu vào Database
     const existing = await prisma.video.findFirst({ where: { videoUrl: hlsUrl } });
     if (!existing) {
-      await prisma.video.create({
+      const newVideo = await prisma.video.create({
         data: {
           title: nameWithoutExt.replace(/_/g, ' '),
           videoUrl: hlsUrl,
@@ -43,6 +47,9 @@ export async function POST(req: Request) {
           authorAvatar: 'A',
         }
       });
+      videoRecordId = newVideo.id;
+    } else {
+      videoRecordId = existing.id;
     }
 
     // Tạo thư mục HLS
@@ -53,13 +60,23 @@ export async function POST(req: Request) {
     let cmd = '';
     // Nếu chạy trực tiếp trên VPS có ffmpeg
     if (process.env.NODE_ENV === 'production' || process.env.HAS_FFMPEG === 'true' || fs.existsSync('/usr/bin/ffmpeg')) {
-      cmd = `ffmpeg -y -i "${filePath}" -c:v copy -c:a copy -start_number 0 -hls_time 4 -hls_list_size 0 -f hls "${path.join(hlsOutDir, 'index.m3u8')}"`;
+      // Dùng -c:v libx264 để đảm bảo tương thích mọi định dạng, tránh lỗi đen màn hình do khác Codec (AV1, HEVC, v.v)
+      // Dùng -sn để bỏ qua Subtitles, tránh lỗi convert
+      cmd = `ffmpeg -y -i "${filePath}" -c:v libx264 -preset fast -crf 26 -c:a aac -sn -start_number 0 -hls_time 4 -hls_list_size 0 -f hls "${path.join(hlsOutDir, 'index.m3u8')}"`;
     } else {
       // Chạy qua Docker ở local
-      cmd = `docker run --rm -v "${process.cwd()}/public/videos:/videos" linuxserver/ffmpeg -y -i "/videos/${filename}" -c:v copy -c:a copy -start_number 0 -hls_time 4 -hls_list_size 0 -f hls "/videos/hls/${nameWithoutExt}/index.m3u8"`;
+      cmd = `docker run --rm -v "${process.cwd()}/public/videos:/videos" linuxserver/ffmpeg -y -i "/videos/${filename}" -c:v libx264 -preset fast -crf 26 -c:a aac -sn -start_number 0 -hls_time 4 -hls_list_size 0 -f hls "/videos/hls/${nameWithoutExt}/index.m3u8"`;
     }
 
-    await execPromise(cmd);
+    try {
+      await execPromise(cmd);
+    } catch (ffmpegError) {
+      // Rollback: xoá record trong DB nếu quá trình convert lỗi
+      if (videoRecordId && !existing) {
+        await prisma.video.delete({ where: { id: videoRecordId } });
+      }
+      throw new Error("Lỗi khi xử lý video (FFMPEG error): " + String(ffmpegError));
+    }
 
     return NextResponse.json({ success: true, message: `Upload và chuyển đổi HLS thành công video: ${nameWithoutExt}` });
   } catch (error) {

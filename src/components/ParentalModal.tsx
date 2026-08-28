@@ -70,32 +70,6 @@ export default function ParentalModal({ isOpen, onClose }: ParentalModalProps) {
           <div className="flex flex-col py-2">
             <h2 className="text-2xl font-black text-gray-800 mb-6 text-center">Cài đặt Phụ Huynh</h2>
             
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl mb-4">
-              <div>
-                <h3 className="font-bold text-lg text-gray-800">Thanh tìm kiếm</h3>
-                <p className="text-sm text-gray-500">Cho phép bé tự tìm kiếm video</p>
-              </div>
-              <button 
-                onClick={toggleSearch}
-                className={`w-14 h-8 rounded-full flex items-center p-1 transition-colors ${enableSearch ? 'bg-green-500' : 'bg-gray-300'}`}
-              >
-                <div className={`w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform ${enableSearch ? 'translate-x-6' : 'translate-x-0'}`} />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl mb-4">
-              <div>
-                <h3 className="font-bold text-lg text-gray-800">YouTube Shorts</h3>
-                <p className="text-sm text-gray-500">Hiển thị tab video ngắn</p>
-              </div>
-              <button 
-                onClick={toggleShorts}
-                className={`w-14 h-8 rounded-full flex items-center p-1 transition-colors ${enableShorts ? 'bg-green-500' : 'bg-gray-300'}`}
-              >
-                <div className={`w-6 h-6 bg-white rounded-full shadow-sm transform transition-transform ${enableShorts ? 'translate-x-6' : 'translate-x-0'}`} />
-              </button>
-            </div>
-
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl mb-6">
               <div>
                 <h3 className="font-bold text-lg text-gray-800">Ưu tiên video mới nhất</h3>

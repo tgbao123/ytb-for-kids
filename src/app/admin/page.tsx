@@ -18,6 +18,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [statusMsg, setStatusMsg] = useState({ text: '', type: '' });
   const [isUploading, setIsUploading] = useState(false);
+  const [prioritizeNewest, setPrioritizeNewest] = useState(true);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -29,6 +30,12 @@ export default function AdminPage() {
       if (data.success) {
         setVideos(data.videos);
       }
+      
+      const setRes = await fetch('/api/admin/settings');
+      const setData = await setRes.json();
+      if (setData.success) {
+        setPrioritizeNewest(setData.value);
+      }
     } catch (e) {
       console.error(e);
     }
@@ -38,6 +45,22 @@ export default function AdminPage() {
   useEffect(() => {
     fetchVideos();
   }, []);
+
+  const togglePrioritize = async () => {
+    const newValue = !prioritizeNewest;
+    setPrioritizeNewest(newValue);
+    try {
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: newValue })
+      });
+      setStatusMsg({ text: `Đã ${newValue ? 'BẬT' : 'TẮT'} tính năng ưu tiên video mới nhất!`, type: 'success' });
+    } catch (e) {
+      console.error(e);
+      setStatusMsg({ text: 'Lỗi khi lưu cài đặt', type: 'error' });
+    }
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -98,7 +121,15 @@ export default function AdminPage() {
           <h1 className="text-3xl font-bold mb-2">Trang Quản Trị Video</h1>
           <p className="text-gray-400">Quản lý và Import video vào hệ thống</p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 items-center">
+          <button
+            onClick={togglePrioritize}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition ${prioritizeNewest ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-700 hover:bg-gray-600'}`}
+          >
+            <RefreshCw className={`w-5 h-5 ${prioritizeNewest ? 'animate-spin-slow' : ''}`} />
+            {prioritizeNewest ? 'Ưu tiên Video Mới: BẬT' : 'Ưu tiên Video Mới: TẮT'}
+          </button>
+          
           <input 
             type="file" 
             accept="video/mp4" 

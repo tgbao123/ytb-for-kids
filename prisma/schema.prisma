@@ -20,3 +20,8 @@ model Video {
   authorName  String
   authorAvatar String
 }
+
+model Setting {
+  key   String @id
+  value String
+}

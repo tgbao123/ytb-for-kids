@@ -16,7 +16,7 @@ interface Short {
 
 import HlsVideo from '@/components/HlsVideo';
 
-export default function ShortsClient({ initialShorts }: { initialShorts: Short[] }) {
+export default function ShortsClient({ initialShorts, prioritizeNewest = true }: { initialShorts: Short[], prioritizeNewest?: boolean }) {
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [disliked, setDisliked] = useState<Record<string, boolean>>({});
   
@@ -37,11 +37,12 @@ export default function ShortsClient({ initialShorts }: { initialShorts: Short[]
       return { ...getNextFromBag(), uniqueId: `rand-${Math.random()}` };
     });
     
-    // Ép 5 video MỚI NHẤT (từ initialShorts đã sort DESC) vào đúng vị trí bắt đầu (index 50 trở đi)
-    // Để user vừa vào là thấy ngay hàng nóng!
-    const numToInject = Math.min(5, initialShorts.length);
-    for (let i = 0; i < numToInject; i++) {
-      list[50 + i] = { ...initialShorts[i], uniqueId: `newest-${i}-${Math.random()}` };
+    // Nếu có cờ ưu tiên, ép 5 video MỚI NHẤT (từ initialShorts đã sort DESC) vào đúng vị trí bắt đầu (index 50 trở đi)
+    if (prioritizeNewest) {
+      const numToInject = Math.min(5, initialShorts.length);
+      for (let i = 0; i < numToInject; i++) {
+        list[50 + i] = { ...initialShorts[i], uniqueId: `newest-${i}-${Math.random()}` };
+      }
     }
     
     return list;

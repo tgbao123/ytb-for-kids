@@ -62,11 +62,11 @@ export async function POST(req: Request) {
     if (process.env.NODE_ENV === 'production' || process.env.HAS_FFMPEG === 'true' || fs.existsSync('/usr/bin/ffmpeg')) {
       // Dùng -c:v libx264 để đảm bảo tương thích mọi định dạng, tránh lỗi đen màn hình do khác Codec (AV1, HEVC, v.v)
       // Dùng -sn để bỏ qua Subtitles, tránh lỗi convert
-      // Dùng setpts=PTS-STARTPTS để ép thời gian video luôn bắt đầu từ 0 (tránh đen màn hình vài giây đầu)
-      cmd = `ffmpeg -y -i "${filePath}" -vf "setpts=PTS-STARTPTS" -af "asetpts=PTS-STARTPTS" -c:v libx264 -preset fast -crf 26 -c:a aac -sn -start_number 0 -hls_time 4 -hls_list_size 0 -f hls "${path.join(hlsOutDir, 'index.m3u8')}"`;
+      // Dùng setpts=PTS-STARTPTS và -muxdelay 0 để ép thời gian video luôn bắt đầu từ 0 tuyệt đối (tránh lỗi seek 0 bị treo)
+      cmd = `ffmpeg -y -i "${filePath}" -vf "setpts=PTS-STARTPTS" -af "asetpts=PTS-STARTPTS" -c:v libx264 -preset fast -crf 26 -c:a aac -sn -muxdelay 0 -muxpreload 0 -start_number 0 -hls_time 4 -hls_list_size 0 -f hls "${path.join(hlsOutDir, 'index.m3u8')}"`;
     } else {
       // Chạy qua Docker ở local
-      cmd = `docker run --rm -v "${process.cwd()}/public/videos:/videos" linuxserver/ffmpeg -y -i "/videos/${filename}" -vf "setpts=PTS-STARTPTS" -af "asetpts=PTS-STARTPTS" -c:v libx264 -preset fast -crf 26 -c:a aac -sn -start_number 0 -hls_time 4 -hls_list_size 0 -f hls "/videos/hls/${nameWithoutExt}/index.m3u8"`;
+      cmd = `docker run --rm -v "${process.cwd()}/public/videos:/videos" linuxserver/ffmpeg -y -i "/videos/${filename}" -vf "setpts=PTS-STARTPTS" -af "asetpts=PTS-STARTPTS" -c:v libx264 -preset fast -crf 26 -c:a aac -sn -muxdelay 0 -muxpreload 0 -start_number 0 -hls_time 4 -hls_list_size 0 -f hls "/videos/hls/${nameWithoutExt}/index.m3u8"`;
     }
 
     try {

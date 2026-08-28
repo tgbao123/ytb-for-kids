@@ -162,9 +162,6 @@ export default function ShortsClient({ initialShorts }: { initialShorts: Short[]
         if (!el.paused) {
           el.pause();
         }
-        if (el.currentTime > 0) {
-          el.currentTime = 0;
-        }
       }
     });
   }, [activeId]);
@@ -285,43 +282,43 @@ export default function ShortsClient({ initialShorts }: { initialShorts: Short[]
             </div>
 
             {/* Action Buttons (Mobile: Inside video container overlay, Desktop: Outside video container) */}
-            <div className="absolute right-2 bottom-4 sm:-right-16 sm:bottom-0 flex flex-col justify-end pb-8 sm:pb-4 gap-4 w-12 z-20 pointer-events-auto">
+            <div className="absolute right-2 bottom-4 lg:-right-16 lg:bottom-0 flex flex-col justify-end pb-8 lg:pb-4 gap-4 w-12 z-20 pointer-events-auto">
               <div className="flex flex-col items-center gap-1.5">
                 <button 
                   onClick={() => toggleLike(short.id)}
-                  className="w-12 h-12 sm:bg-[#272727] sm:hover:bg-[#3f3f3f] rounded-full flex items-center justify-center transition-colors"
+                  className="w-12 h-12 lg:bg-[#272727] lg:hover:bg-[#3f3f3f] rounded-full flex items-center justify-center transition-colors"
                 >
-                  <ThumbsUp className="w-7 h-7 sm:w-6 sm:h-6" fill={liked[short.id] ? 'white' : 'none'} stroke={liked[short.id] ? 'white' : 'white'} />
+                  <ThumbsUp className="w-7 h-7 lg:w-6 lg:h-6" fill={liked[short.id] ? 'white' : 'none'} stroke={liked[short.id] ? 'white' : 'white'} />
                 </button>
-                <span className="text-white text-xs font-medium drop-shadow-md sm:drop-shadow-none">{liked[short.id] ? '84' : '83'}</span>
+                <span className="text-white text-xs font-medium drop-shadow-md lg:drop-shadow-none">{liked[short.id] ? '84' : '83'}</span>
               </div>
               
               <div className="flex flex-col items-center gap-1.5">
-                <button className="w-12 h-12 sm:bg-[#272727] sm:hover:bg-[#3f3f3f] rounded-full flex items-center justify-center transition-colors text-white">
-                  <ThumbsDown className="w-7 h-7 sm:w-6 sm:h-6" />
+                <button className="w-12 h-12 lg:bg-[#272727] lg:hover:bg-[#3f3f3f] rounded-full flex items-center justify-center transition-colors text-white">
+                  <ThumbsDown className="w-7 h-7 lg:w-6 lg:h-6" />
                 </button>
-                <span className="text-white text-xs font-medium drop-shadow-md sm:drop-shadow-none hidden sm:block">Không thích</span>
+                <span className="text-white text-xs font-medium drop-shadow-md lg:drop-shadow-none hidden lg:block">Không thích</span>
               </div>
 
               <div className="flex flex-col items-center gap-1.5">
-                <button className="w-12 h-12 sm:bg-[#272727] sm:hover:bg-[#3f3f3f] rounded-full flex items-center justify-center transition-colors text-white">
-                  <MessageSquare className="w-7 h-7 sm:w-6 sm:h-6" />
+                <button className="w-12 h-12 lg:bg-[#272727] lg:hover:bg-[#3f3f3f] rounded-full flex items-center justify-center transition-colors text-white">
+                  <MessageSquare className="w-7 h-7 lg:w-6 lg:h-6" />
                 </button>
-                <span className="text-white text-xs font-medium drop-shadow-md sm:drop-shadow-none">5</span>
+                <span className="text-white text-xs font-medium drop-shadow-md lg:drop-shadow-none">5</span>
               </div>
 
               <div className="flex flex-col items-center gap-1.5">
-                <button className="w-12 h-12 sm:bg-[#272727] sm:hover:bg-[#3f3f3f] rounded-full flex items-center justify-center transition-colors text-white">
-                  <Share2 className="w-7 h-7 sm:w-6 sm:h-6" />
+                <button className="w-12 h-12 lg:bg-[#272727] lg:hover:bg-[#3f3f3f] rounded-full flex items-center justify-center transition-colors text-white">
+                  <Share2 className="w-7 h-7 lg:w-6 lg:h-6" />
                 </button>
-                <span className="text-white text-xs font-medium drop-shadow-md sm:drop-shadow-none">Chia sẻ</span>
+                <span className="text-white text-xs font-medium drop-shadow-md lg:drop-shadow-none">Chia sẻ</span>
               </div>
 
               <div className="flex flex-col items-center gap-1.5">
-                <button className="w-12 h-12 sm:bg-[#272727] sm:hover:bg-[#3f3f3f] rounded-full flex items-center justify-center transition-colors text-white">
-                  <Repeat className="w-7 h-7 sm:w-6 sm:h-6" />
+                <button className="w-12 h-12 lg:bg-[#272727] lg:hover:bg-[#3f3f3f] rounded-full flex items-center justify-center transition-colors text-white">
+                  <Repeat className="w-7 h-7 lg:w-6 lg:h-6" />
                 </button>
-                <span className="text-white text-xs font-medium drop-shadow-md sm:drop-shadow-none hidden sm:block">Phối lại</span>
+                <span className="text-white text-xs font-medium drop-shadow-md lg:drop-shadow-none hidden lg:block">Phối lại</span>
               </div>
 
               <div className="mt-2 w-10 h-10 bg-gray-600 rounded-lg overflow-hidden mx-auto border-[3px] border-transparent hover:border-white cursor-pointer transition-colors shrink-0">

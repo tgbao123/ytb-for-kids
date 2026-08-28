@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   const setting = await prisma.setting.findUnique({ where: { key: 'PRIORITIZE_NEWEST' } });
-  return NextResponse.json({ success: true, value: setting?.value === 'true' });
+  return NextResponse.json({ success: true, value: setting ? setting.value === 'true' : false });
 }
 
 export async function POST(req: Request) {

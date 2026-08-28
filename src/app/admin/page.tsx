@@ -18,7 +18,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [statusMsg, setStatusMsg] = useState({ text: '', type: '' });
   const [isUploading, setIsUploading] = useState(false);
-  const [prioritizeNewest, setPrioritizeNewest] = useState(true);
+  const [prioritizeNewest, setPrioritizeNewest] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 

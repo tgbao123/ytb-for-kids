@@ -16,7 +16,7 @@ interface Short {
 
 import HlsVideo from '@/components/HlsVideo';
 
-export default function ShortsClient({ initialShorts, prioritizeNewest = true }: { initialShorts: Short[], prioritizeNewest?: boolean }) {
+export default function ShortsClient({ initialShorts, prioritizeNewest = false }: { initialShorts: Short[], prioritizeNewest?: boolean }) {
   const [liked, setLiked] = useState<Record<string, boolean>>({});
   const [disliked, setDisliked] = useState<Record<string, boolean>>({});
   

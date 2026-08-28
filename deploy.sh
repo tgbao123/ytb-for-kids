@@ -9,12 +9,16 @@ echo "🚀 Bắt đầu đồng bộ code và video lên server $HOST..."
 # Tạo thư mục trên server nếu chưa có
 ssh -o StrictHostKeyChecking=no $HOST "mkdir -p $REMOTE_DIR"
 
-# Rsync toàn bộ source code và thư mục public/videos, prisma sang server
+# Rsync toàn bộ source code sang server (LOẠI TRỪ database và video đã upload trên VPS)
 rsync -avz --delete \
            --exclude 'node_modules' \
            --exclude '.next' \
            --exclude '.git' \
            --exclude 'tests' \
+           --exclude 'prisma/dev.db' \
+           --exclude 'prisma/dev.db-wal' \
+           --exclude 'prisma/dev.db-shm' \
+           --exclude 'public/videos/*' \
            ./ $HOST:$REMOTE_DIR
 
 echo "✅ Đồng bộ hoàn tất! Bắt đầu Build và Run Docker trên server..."

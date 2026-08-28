@@ -12,7 +12,7 @@ export default async function ShortsPage() {
   });
   
   const setting = await prisma.setting.findUnique({ where: { key: 'PRIORITIZE_NEWEST' } });
-  const prioritizeNewest = setting ? setting.value === 'true' : true; // Mặc định là true
+  const prioritizeNewest = setting ? setting.value === 'true' : false; // Mặc định là false (Tắt)
   
   return <ShortsClient initialShorts={videos} prioritizeNewest={prioritizeNewest} />;
 }

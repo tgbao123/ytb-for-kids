@@ -9,3 +9,7 @@ README.md
 !.env
 AGENTS.md
 CLAUDE.md
+public/videos
+prisma/dev.db
+prisma/dev.db-wal
+prisma/dev.db-shm
